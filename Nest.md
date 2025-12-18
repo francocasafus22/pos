@@ -335,3 +335,82 @@ create(createCategoryDto: CreateCategoryDto) {
 Es una clase que se mapea con una tabla de tu base de datos.
 En estas podrás definir la estructura de tus tablas y columnas en la base de datos con su tipo de dato.
 Usa el decorador @Entity
+
+## Pipes 
+En NestJS, los pipes osn componentes que permiten transformar y validar datos en las solicitudes entrantes. Funcionan como intermediarios que procesan los datos antes de que lleguen al controlador, asegurando que estén en el formato adecuado y que cumplan con las reglas de validación definidas.
+
+**Tipos**
+- Transformación: Pueden transformar el valor de entrada. Por ejemplo, convertir un string a un número.
+- Validación: Verifican si el valor de entrada cumple con ciertas reglas. Por ejemplo, comprobar si un parámetro es un entero o si un campo es obligatorio.
+Tambíen se pueden crear tus propios pipes.
+
+Algunos pipes nativos de Nest son: 
+- ValidationPipe
+- ParseIntPipe
+- ParseFloatPipe
+- ParseBoolPipe
+- ParseArrayPipe
+- ParseUUIDPipe
+- ParseEnumPipe
+- DefaultValuePipe
+- ParseFilePipe
+- ParseDatePipe
+
+Para activar el uso de pipes hay que incluirlo en el main.ts
+```ts
+ app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+    }),
+  );
+```
+¿Cómo implementar un pipe? 
+
+Este pipe válida que el ID sea un entero, sino devuelve error.
+```ts
+@Get(':id')
+  findOne(
+    @Param(
+      'id',
+      new ParseIntPipe({
+        exceptionFactory: () => new BadRequestException('ID no válido'),
+      }),
+    )
+    id: string,
+  ) {
+    return this.categoriesService.findOne(+id);
+  }
+```
+
+Este mismo pipe se utilizaría en cada endpoint donde se reciba el id por params, como en editar, eliminar, etc.
+Así que convendría crear nuestro propio pipe.
+
+- `nest g pi IdValidation common/pipes`
+
+- Modificamos el código del pipe generado
+```ts
+import { BadRequestException, Injectable, ParseIntPipe } from '@nestjs/common';
+
+@Injectable()
+// Extendemos de la clase ParseIntPipe
+export class IdValidationPipe extends ParseIntPipe {
+  constructor() {
+    // Modificamos el método exceptionFactory de ParseIntPipe con la excepción que querramos devolver
+    super({
+      exceptionFactory: () => new BadRequestException('ID no válido'),
+    });
+  }
+}
+
+```
+
+- La añadimos al controller
+```ts
+@Get(':id')
+  findOne(
+    @Param('id', IdValidationPipe)
+    id: string,
+  ) {
+    return this.categoriesService.findOne(+id);
+  }
+```
