@@ -3,14 +3,12 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Query,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { GetTransactionQueryDto } from './dto/get-transaction.dto';
 import { IdValidationPipe } from '../common/pipes/id-validation/id-validation.pipe';
 

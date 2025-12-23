@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import {
   Transaction,
   TransactionContents,
@@ -32,30 +31,18 @@ export class TransactionsService {
     await this.productRepository.manager.transaction(
       async (transactionEntityManager) => {
         const transaction = new Transaction();
-        const total = createTransactionDto.contents.reduce(
-          (total, item) => total + item.price * item.quantity,
-          0,
-        );
-        transaction.total = total;
-
-        if (createTransactionDto.coupon) {
-          const coupon = await this.couponService.apply({
-            name: createTransactionDto.coupon,
-          });
-          transaction.total = total - (total * coupon.percentage) / 100;
-          transaction.coupon = coupon.name;
-          transaction.discount = coupon.percentage;
-        }
 
         const errors = [];
+        let total = 0;
 
         for (const contents of createTransactionDto.contents) {
+          console.log(contents);
           const product = await transactionEntityManager.findOneBy(Product, {
             id: contents.productId,
           });
 
           if (!product) {
-            errors.push(`'El producto con ID ${contents.productId} no existe'`);
+            errors.push(`El producto con ID ${contents.productId} no existe`);
             throw new NotFoundException(errors);
           }
 
@@ -71,14 +58,29 @@ export class TransactionsService {
           // Create TransactionContents instance
 
           const transactionContent = new TransactionContents();
-          transactionContent.price = contents.price;
+          transactionContent.price = product.price;
           transactionContent.product = product;
           transactionContent.quantity = contents.quantity;
+          total += product.price * contents.quantity;
+          transaction.total = total;
           transactionContent.transaction = transaction;
 
-          await transactionEntityManager.save(transaction);
           await transactionEntityManager.save(transactionContent);
         }
+
+        if (createTransactionDto.coupon) {
+          const coupon = await this.couponService.apply({
+            name: createTransactionDto.coupon,
+          });
+          console.log(transaction.total);
+          transaction.total =
+            transaction.total - (transaction.total * coupon.percentage) / 100;
+          transaction.coupon = coupon.name;
+          transaction.discount = coupon.percentage;
+        }
+
+        console.log(transaction);
+        await transactionEntityManager.save(transaction);
       },
     );
 
