@@ -36,3 +36,4 @@ export const ShoopingCartSchema = z.array(ShoopingCartContentsSchema);
 export type Product = z.infer<typeof ProductSchema>;
 export type Category = z.infer<typeof CategorySchema>;
 export type ShoopingCart = z.infer<typeof ShoopingCartSchema>;
+export type CartItem = z.infer<typeof ShoopingCartContentsSchema>;
