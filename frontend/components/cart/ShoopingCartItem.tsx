@@ -5,6 +5,7 @@ import { useStore } from "@/src/store";
 
 export default function ShoppingCartItem({ item }: { item: CartItem }) {
   const updateQuantity = useStore((state) => state.updateQuantity);
+  const removeProduct = useStore((state) => state.removeFromCart);
   return (
     <li className="flex items-center space-x-6 py-6 relative">
       <div className="h-24 w-24">
@@ -34,7 +35,7 @@ export default function ShoppingCartItem({ item }: { item: CartItem }) {
         </select>
       </div>
       <div className="absolute top-10 right-0">
-        <button type="button" onClick={() => {}}>
+        <button type="button" onClick={() => removeProduct(item.productId)}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

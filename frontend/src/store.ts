@@ -7,12 +7,24 @@ interface Store {
   contents: ShoopingCart;
   addToCart: (product: Product) => void;
   updateQuantity: (id: Product["id"], quantity: number) => void;
+  removeFromCart: (id: Product["id"]) => void;
+  calculateTotal: () => void;
 }
 
 export const useStore = create<Store>()(
   devtools((set, get) => ({
     total: 0,
     contents: [],
+    calculateTotal: () => {
+      const total = get().contents.reduce(
+        (t, item) => item.price * item.quantity + t,
+        0,
+      );
+
+      set(() => ({
+        total,
+      }));
+    },
     addToCart: (product) => {
       const { id: productId, categoryId, ...data } = product;
       let contents: ShoopingCart = [];
@@ -42,6 +54,7 @@ export const useStore = create<Store>()(
       }
 
       set(() => ({ contents }));
+      get().calculateTotal();
     },
     updateQuantity: (id, quantity) => {
       set((state) => ({
@@ -49,6 +62,13 @@ export const useStore = create<Store>()(
           item.productId === id ? { ...item, quantity } : item,
         ),
       }));
+      get().calculateTotal();
+    },
+    removeFromCart: (id) => {
+      set((state) => ({
+        contents: state.contents.filter((item) => item.productId !== id),
+      }));
+      get().calculateTotal();
     },
   })),
 );
