@@ -2,12 +2,11 @@
 
 import { useStore } from "@/src/store";
 import ShoopingCartItem from "./ShoopingCartItem";
-import { formatCurrency } from "@/src/utils";
 import Amount from "./amount";
 import CouponForm from "./CouponForm";
 
 export default function ShoppingCart() {
-  const { contents, total } = useStore((state) => state);
+  const { contents, total, discount } = useStore((state) => state);
   return (
     contents.length != 0 && (
       <aside className=" md:h-screen md:overflow-y-scroll pt-10 pb-32 px-5 bg-white">
@@ -21,6 +20,9 @@ export default function ShoppingCart() {
           ))}
         </ul>
         <dl className="space-y-6 py-6 border-t border-gray-300 text-sm font-medium text-gray-500">
+          {discount ? (
+            <Amount label="Descuento" amount={discount} discount />
+          ) : null}
           <Amount label="Total a Pagar" amount={total} />
         </dl>
         <CouponForm />

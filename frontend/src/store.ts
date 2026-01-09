@@ -6,22 +6,30 @@ interface Store {
   total: number;
   contents: ShoopingCart;
   coupon: Coupon;
+  discount: number;
   addToCart: (product: Product) => void;
   updateQuantity: (id: Product["id"], quantity: number) => void;
   removeFromCart: (id: Product["id"]) => void;
   calculateTotal: () => void;
   applyCoupon: (couponName: string) => Promise<void>;
+  applyDiscount: () => void;
+  clearCart: () => void;
 }
+
+const initialState = {
+  total: 0,
+  contents: [],
+  discount: 0,
+  coupon: {
+    percentage: 0,
+    name: "",
+    message: "",
+  },
+};
 
 export const useStore = create<Store>()(
   devtools((set, get) => ({
-    total: 0,
-    contents: [],
-    coupon: {
-      percentage: 0,
-      name: "",
-      message: "",
-    },
+    ...initialState,
     calculateTotal: () => {
       const total = get().contents.reduce(
         (t, item) => item.price * item.quantity + t,
@@ -31,6 +39,10 @@ export const useStore = create<Store>()(
       set(() => ({
         total,
       }));
+
+      if (get().coupon.percentage) {
+        get().applyDiscount();
+      }
     },
     addToCart: (product) => {
       const { id: productId, categoryId, ...data } = product;
@@ -75,6 +87,9 @@ export const useStore = create<Store>()(
       set((state) => ({
         contents: state.contents.filter((item) => item.productId !== id),
       }));
+      if (!get().contents.length) {
+        get().clearCart();
+      }
       get().calculateTotal();
     },
     applyCoupon: async (couponName) => {
@@ -88,6 +103,26 @@ export const useStore = create<Store>()(
       const coupon = CouponResponseSchema.parse(json);
       set(() => ({
         coupon,
+      }));
+      if (coupon.percentage) {
+        get().applyDiscount();
+      }
+    },
+    applyDiscount() {
+      const subtotalAmount = get().contents.reduce(
+        (t, item) => item.price * item.quantity + t,
+        0,
+      );
+      const discount = (get().coupon.percentage / 100) * subtotalAmount;
+      const total = subtotalAmount - discount;
+      set(() => ({
+        discount,
+        total,
+      }));
+    },
+    clearCart() {
+      set(() => ({
+        ...initialState,
       }));
     },
   })),
