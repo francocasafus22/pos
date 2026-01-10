@@ -9,7 +9,7 @@ export default function TransactionSummary({
 }) {
   return (
     <>
-      <div className="mt-6  text-sm font-medium text-gray-500 border border-gray-200">
+      <div className="rounded-lg mb-5 text-sm font-medium text-gray-500 border border-gray-200">
         <p className="text-sm font-black text-gray-900 p-2 bg-gray-200 ">
           ID: {transaction.id}
         </p>
