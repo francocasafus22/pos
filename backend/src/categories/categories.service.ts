@@ -28,6 +28,11 @@ export class CategoriesService {
 
     if (query.showProducts == 'true') {
       options.relations = { products: true };
+      options.order = {
+        products: {
+          inventory: 'DESC',
+        },
+      };
     }
 
     const category = await this.categoryRepository.findOne(options);

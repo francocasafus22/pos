@@ -7,11 +7,6 @@ import {
 } from "@/src/schemas";
 import { revalidateTag } from "next/cache";
 
-type ActionStateProps = {
-  errors: string[];
-  success: string;
-};
-
 export async function submitOrder(data: unknown) {
   const order = OrderSchema.parse(data);
 
