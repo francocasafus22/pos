@@ -16,6 +16,7 @@ export async function addProduct(
     price: formData.get("price"),
     inventory: formData.get("inventory"),
     categoryId: formData.get("categoryId"),
+    image: formData.get("image"),
   });
 
   if (!product.success) {
