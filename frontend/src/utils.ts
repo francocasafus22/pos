@@ -33,3 +33,5 @@ export function getImagePath(image: string) {
     else return `${process.env.NEXT_PUBLIC_API_URL}/img/${image}`;
   }
 }
+
+export const isAvailable = (inventory: number) => inventory > 0;

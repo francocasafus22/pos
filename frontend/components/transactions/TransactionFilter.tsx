@@ -26,7 +26,10 @@ export default function TransactionFilter({ page }: { page: string }) {
     queryFn: () => getSalesByDate(formattedDate, page),
   });
 
-  if (data) if (+page > data.totalPages) redirect("/admin/sales?page=1");
+  if (data) {
+    if (+page > data.totalPages && data.totalPages != 0)
+      redirect("/admin/sales?page=1");
+  }
 
   const total =
     data?.transactions.reduce(
